@@ -2,7 +2,14 @@
 // lista ligada circular.
 package main
 
-import "fmt"
+import (
+	"bufio"
+	"fmt"
+	"log"
+	"os"
+	"strconv"
+	"strings"
+)
 
 // showHeaders mostra prints para facilitar o debugging.
 var showHeaders bool
@@ -95,21 +102,73 @@ func (c *circular) display() {
 	fmt.Println(list)
 }
 
-func main() {
-	showHeaders = true
-	fmt.Println("solveJosephus(n, m)")
-	c := new()
-	n := 10
+// setupParams pega os argumento para solveJosephus, via stdin.
+// Retorna uma lista de lista de int.
+func setupParams() [][]int {
+	// Número de casos de testes.
+	testsuites := 0
+	input := bufio.NewScanner(os.Stdin)
 
-	if showHeaders {
-		fmt.Println("<<<<<<<<<< Circular Linked List >>>>>>>>>>")
-		for i := 0; i < n; i++ {
-			c.insertHead(i)
+	for input.Scan() {
+		// Remove os espaços em branco.
+		parsedStr := strings.TrimSpace(input.Text())
+		// Atoi é equivalente à ParseInt(s, 10, 0).
+		if i, err := strconv.Atoi(parsedStr); err == nil {
+			testsuites = i
+			break
+		} else {
+			log.Fatalln("Primeiro argumento não é número")
 		}
-		c.remove(2)
-		c.display()
-		len := c.len
-		fmt.Printf("len: %d\n", len)
 	}
 
+	// Array com tamanho de testsuites, com cada elemento [n, m].
+	xtests := make([][]int, testsuites)
+	// Chamar "i" vezes o josephus.
+	for i := 0; i < testsuites; i++ {
+		j := 0
+		for input.Scan() {
+			xtests[i] = make([]int, 2)
+			// Pegar n
+			xtests[i][j], _ = strconv.Atoi(input.Text())
+			j = 1
+			break
+		}
+		for input.Scan() {
+			// Pegar m
+			xtests[i][j], _ = strconv.Atoi(input.Text())
+			j = 0
+			break
+		}
+	}
+	return xtests
+}
+
+// solveJosephus cria a lista circular e aplica o algoritmo de remoção. Retorna
+// o sobrevivente.
+func solveJosephus(n, m int) int {
+	return m * n
+}
+
+// formatJosephusSolution mostra a solução do problema no formato solicitado.
+func formatJosephusSolution(args []int, result int) {
+	n := args[0]
+	m := args[1]
+
+	fmt.Printf("Usando n=%d, m=%d, resultado=%d\n", n, m, result)
+}
+
+// main executa o algoritmo para o Problema de Josephus.
+func main() {
+	args := setupParams()
+	//fmt.Println(args)
+
+	xResult := []int{}
+	for _, arg := range args {
+		xResult = append(xResult, solveJosephus(arg[0], arg[1]))
+	}
+	//fmt.Println(xResult)
+
+	for i, result := range xResult {
+		formatJosephusSolution(args[i], result)
+	}
 }
