@@ -94,10 +94,6 @@ func (c *circular) display() {
 	}
 	list = append(list, pivot.value)
 
-	// Mostra cada elemento da lista.
-	//for _, e := range list {
-	//fmt.Println(e)
-	//}
 	// Para mostrar a lista completa:
 	fmt.Println(list)
 }
@@ -143,10 +139,42 @@ func setupParams() [][]int {
 	return xtests
 }
 
-// solveJosephus cria a lista circular e aplica o algoritmo de remoção. Retorna
-// o sobrevivente.
+// solveJosephus cria a lista circular e aplica o algoritmo de remoção.
+// n é o tamanho do círculo e m o passo a cada iteração.
+// Retorna o sobrevivente.
 func solveJosephus(n, m int) int {
-	return m * n
+	result := 0
+
+	circle := new()
+	// [1 2 3 4 5]
+	for i := n; i > 0; i-- {
+		circle.insertHead(i)
+	}
+	// [2 3 4 5 1], pois o tail apontará para 1 e o algoritmo seguirá a
+	// ordem incremental correta (1 -> 2 -> 3 -> ...).
+	circle.tail = circle.tail.next
+
+	for circle.len > 1 {
+		prevTail := circle.tail
+		for i := 1; i <= m; i++ {
+			if i != m {
+				circle.tail = circle.tail.next
+			}
+		}
+		// Quando m==c.len, o elemento numa posição p aponta para ele
+		// próprio, o que é proibido pelo problema. Então, ele mata o
+		// elemento subsequente.
+		if circle.tail.next == prevTail {
+			circle.tail = circle.tail.next
+			circle.remove(circle.tail.next.value)
+		} else {
+			circle.remove(circle.tail.next.value)
+		}
+		circle.tail = circle.tail.next
+	}
+
+	result = circle.tail.value
+	return result
 }
 
 // formatJosephusSolution mostra a solução do problema no formato solicitado.
